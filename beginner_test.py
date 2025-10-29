@@ -1,9 +1,10 @@
 #!/usr/bin/python
 
-from mininet.net import Mininet
-from mininet.node import OVSKernelSwitch
-from mininet.cli import CLI
-from mininet.log import setLogLevel
+# Cần cài đặt Mininet để chạy đoạn mã này, không sẽ bị lỗi.
+from mininet.net import Mininet # type: ignore
+from mininet.node import OVSKernelSwitch # type: ignore
+from mininet.cli import CLI # type: ignore
+from mininet.log import setLogLevel # type: ignore
 
 def create_simple_topo():
     """Tạo một topo đơn giản và đảm bảo dọn dẹp."""
