@@ -1,5 +1,4 @@
 #!/usr/bin/python
-#test với mininet> h2 iperf -s & mininet> h1 iperf -c h2
 
 from mininet.net import Mininet
 # Chỉ cần import OVSKernelSwitch
@@ -41,7 +40,7 @@ def run_bandwidth_test():
         # Bây giờ pingall sẽ thành công
         net.pingAll()
         
-        print("\nINFO: *** Dùng 'iperf' để đo băng thông. ***")
+        print("\nINFO: *** Dùng 'h2 iperf -s & | h1 iperf -c h2' để đo băng thông. ***")
         CLI(net)
 
     finally:
