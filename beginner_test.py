@@ -6,39 +6,52 @@ from mininet.cli import CLI
 from mininet.log import setLogLevel
 
 def create_simple_topo():
-    """Tạo một topo đơn giản: 1 switch, 3 hosts."""
+    """Tạo một topo đơn giản và đảm bảo dọn dẹp."""
     
-    # 1. Khởi tạo Mininet. `switch=OVSKernelSwitch` là lựa chọn switch hiện đại.
-    #    `autoSetMacs=True` để Mininet tự gán địa chỉ MAC.
     net = Mininet(switch=OVSKernelSwitch, autoSetMacs=True)
 
-    # 2. Thêm các node vào mạng
     print("INFO: *** Thêm Switch ***")
     s1 = net.addSwitch('s1')
     
     print("INFO: *** Thêm Hosts ***")
     h1 = net.addHost('h1', ip='10.0.0.1/24')
     h2 = net.addHost('h2', ip='10.0.0.2/24')
-    h3 = net.addHost('h3', ip='10.0.0.3/24')
 
-    # 3. Tạo các liên kết giữa các node
     print("INFO: *** Tạo Links ***")
     net.addLink(h1, s1)
     net.addLink(h2, s1)
-    net.addLink(h3, s1)
 
-    # 4. Bắt đầu mạng
     print("INFO: *** Bắt đầu Mạng ***")
     net.start()
 
-    # 5. Mở giao diện dòng lệnh (CLI) để tương tác
     print("INFO: *** Chạy CLI ***")
     CLI(net)
 
-    # 6. Dừng mạng khi thoát khỏi CLI
     print("INFO: *** Dừng Mạng ***")
-    net.stop()
+    net.stop() # Lệnh net.stop() chính là lệnh dọn dẹp cho topo hiện tại
 
 if __name__ == '__main__':
     setLogLevel('info')
-    create_simple_topo()
+    
+    # Sử dụng try...finally
+    network = None # Khởi tạo để tránh lỗi nếu net chưa được tạo
+    try:
+        # Đoạn code chính nằm ở đây. 
+        # Chúng ta không gọi trực tiếp create_simple_topo() nữa, 
+        # mà sẽ xây dựng mạng ngay trong khối try.
+        
+        network = Mininet(switch=OVSKernelSwitch, autoSetMacs=True)
+        s1 = network.addSwitch('s1')
+        h1 = network.addHost('h1')
+        h2 = network.addHost('h2')
+        network.addLink(h1, s1)
+        network.addLink(h2, s1)
+        network.start()
+        
+        CLI(network)
+
+    finally:
+        # Khối này LUÔN LUÔN được chạy
+        print("INFO: *** Đang dọn dẹp và dừng mạng ***")
+        if network is not None:
+            network.stop()
