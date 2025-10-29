@@ -1,0 +1,5 @@
+Dùng sudo mn -c để sửa lỗi xung đột khi tạo topo mới
+
+x11 ĐỂ TẢI xterm và xhost
+sudo apt update
+sudo apt install x11-apps

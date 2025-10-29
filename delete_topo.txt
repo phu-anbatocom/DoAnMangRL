@@ -1,1 +1,0 @@
-Dùng sudo mn -c để sửa lỗi xung đột khi tạo topo mới
