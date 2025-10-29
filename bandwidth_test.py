@@ -1,37 +1,22 @@
 #!/usr/bin/python
+#test với mininet> h2 iperf -s & mininet> h1 iperf -c h2
 
 from mininet.net import Mininet
-# Thay đổi quan trọng: Import Controller và RemoteController
-from mininet.node import Controller, OVSKernelSwitch
+# Chỉ cần import OVSKernelSwitch
+from mininet.node import OVSKernelSwitch
 from mininet.cli import CLI
 from mininet.log import setLogLevel
 from mininet.link import TCLink
 
-# --- ĐỊNH NGHĨA MỘT LEARNING SWITCH CONTROLLER BẰNG PYTHON ---
-# Đây là một controller "in-process", nó chạy ngay trong kịch bản của bạn.
-# Nó không cần bất kỳ file bên ngoài nào.
-class LearningSwitch( Controller ):
-    def __init__( self, name, **kwargs ):
-        Controller.__init__( self, name, port=6633, **kwargs )
-    def start( self ):
-        # Lệnh 'ovs-ofctl' là một phần của gói 'openvswitch-switch'
-        # và nó nên tồn tại. Chúng ta dùng nó để cài đặt một flow mặc định.
-        self.cmd( 'ovs-ofctl del-flows s1' )
-        self.cmd( 'ovs-ofctl add-flow s1 "action=normal"' )
-# -----------------------------------------------------------
-
 def run_bandwidth_test():
     net = None
     try:
-        # 1. Chỉ định rõ chúng ta sẽ dùng controller tự định nghĩa
-        net = Mininet(switch=OVSKernelSwitch, autoSetMacs=True, link=TCLink,
-                      controller=LearningSwitch, cleanup=True)
+        # 1. KHÔNG SỬ DỤNG Controller. 
+        #    Xóa bỏ tham số controller=OVSController.
+        net = Mininet(switch=OVSKernelSwitch, autoSetMacs=True, link=TCLink, cleanup=True)
 
-        print("INFO: *** Thêm một Controller Python nội bộ ***")
-        # 2. Thêm controller 'c0' sử dụng lớp LearningSwitch của chúng ta
-        c0 = net.addController('c0')
-        
-        # ... (phần còn lại của code giữ nguyên) ...
+        print("INFO: *** Mạng sẽ hoạt động không cần Controller ***")
+
         print("INFO: *** Thêm Hosts ***")
         h1 = net.addHost('h1', ip='10.0.0.1/24')
         h2 = net.addHost('h2', ip='10.0.0.2/24')
@@ -46,11 +31,17 @@ def run_bandwidth_test():
         print("INFO: *** Bắt đầu Mạng ***")
         net.start()
         
-        print("INFO: *** Chạy pingall để xác minh kết nối ban đầu ***")
-        net.pingAll()
+        # 2. SAO CHÉP LOGIC TỪ static_routing.py VÀO ĐÂY
+        print("\nINFO: *** Cài đặt flow rule để switch hoạt động như L2 switch ***")
+        for sw in net.switches:
+            # Lệnh này ra lệnh cho switch tự hoạt động như một learning switch
+            sw.cmd('ovs-ofctl add-flow', sw.name, '"action=normal"')
 
-        print("INFO: *** Dùng 'xterm h1 h2' và 'iperf' để đo băng thông. ***")
+        print("\nINFO: *** Chạy pingall để kiểm tra kết nối ban đầu ***")
+        # Bây giờ pingall sẽ thành công
+        net.pingAll()
         
+        print("\nINFO: *** Dùng 'iperf' để đo băng thông. ***")
         CLI(net)
 
     finally:
