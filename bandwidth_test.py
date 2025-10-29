@@ -1,25 +1,37 @@
 #!/usr/bin/python
 
-from mininet.net import Mininet # type: ignore
-from mininet.node import OVSKernelSwitch # type: ignore
-from mininet.cli import CLI # type: ignore
-from mininet.log import setLogLevel # type: ignore
-from mininet.link import TCLink # type: ignore # Import TCLink để giới hạn băng thông
+from mininet.net import Mininet
+# Thay đổi quan trọng: Import Controller và RemoteController
+from mininet.node import Controller, OVSKernelSwitch
+from mininet.cli import CLI
+from mininet.log import setLogLevel
+from mininet.link import TCLink
+
+# --- ĐỊNH NGHĨA MỘT LEARNING SWITCH CONTROLLER BẰNG PYTHON ---
+# Đây là một controller "in-process", nó chạy ngay trong kịch bản của bạn.
+# Nó không cần bất kỳ file bên ngoài nào.
+class LearningSwitch( Controller ):
+    def __init__( self, name, **kwargs ):
+        Controller.__init__( self, name, port=6633, **kwargs )
+    def start( self ):
+        # Lệnh 'ovs-ofctl' là một phần của gói 'openvswitch-switch'
+        # và nó nên tồn tại. Chúng ta dùng nó để cài đặt một flow mặc định.
+        self.cmd( 'ovs-ofctl del-flows s1' )
+        self.cmd( 'ovs-ofctl add-flow s1 "action=normal"' )
+# -----------------------------------------------------------
 
 def run_bandwidth_test():
-    """
-    Tạo topo có nút cổ chai, chạy CLI, và đảm bảo dọn dẹp an toàn.
-    """
-    # 1. Khởi tạo biến 'net' là None. 
-    #    Điều này để đảm bảo chương trình không bị lỗi nếu việc tạo Mininet thất bại.
     net = None
     try:
-        # --- Khối code chính nằm trong 'try' ---
-        
-        # 2. Tạo đối tượng Mininet. 
-        #    'cleanup=True' là một tùy chọn hữu ích để tự động dọn dẹp khi bắt đầu.
-        net = Mininet(switch=OVSKernelSwitch, autoSetMacs=True, link=TCLink, cleanup=True)
+        # 1. Chỉ định rõ chúng ta sẽ dùng controller tự định nghĩa
+        net = Mininet(switch=OVSKernelSwitch, autoSetMacs=True, link=TCLink,
+                      controller=LearningSwitch, cleanup=True)
 
+        print("INFO: *** Thêm một Controller Python nội bộ ***")
+        # 2. Thêm controller 'c0' sử dụng lớp LearningSwitch của chúng ta
+        c0 = net.addController('c0')
+        
+        # ... (phần còn lại của code giữ nguyên) ...
         print("INFO: *** Thêm Hosts ***")
         h1 = net.addHost('h1', ip='10.0.0.1/24')
         h2 = net.addHost('h2', ip='10.0.0.2/24')
@@ -28,27 +40,24 @@ def run_bandwidth_test():
         s1 = net.addSwitch('s1')
         
         print("INFO: *** Tạo Links ***")
-        # Link h1-s1 không giới hạn
         net.addLink(h1, s1)
-        
-        # Link s1-h2 bị giới hạn băng thông còn 10 Mbps và có độ trễ 15ms
-        print("INFO: *** Tạo nút cổ chai (10Mbps, 15ms delay) ***")
         net.addLink(s1, h2, bw=10, delay='15ms')
 
         print("INFO: *** Bắt đầu Mạng ***")
         net.start()
         
-        print("INFO: *** Chạy CLI. Dùng 'xterm h1 h2' và 'iperf' để kiểm tra. ***")
+        print("INFO: *** Chạy pingall để xác minh kết nối ban đầu ***")
+        net.pingAll()
+
+        print("INFO: *** Dùng 'xterm h1 h2' và 'iperf' để đo băng thông. ***")
+        
         CLI(net)
 
     finally:
-        # --- Khối 'finally' LUÔN LUÔN được thực thi ---
         print("INFO: *** Dọn dẹp và dừng mạng ***")
-        # 3. Kiểm tra xem đối tượng 'net' đã được tạo thành công chưa trước khi dừng nó.
         if net is not None:
             net.stop()
 
 if __name__ == '__main__':
-    # Đặt mức độ log để thấy các thông báo INFO
     setLogLevel('info')
     run_bandwidth_test()
