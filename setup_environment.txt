@@ -1,5 +1,8 @@
+Mininet 2.3.0
 Dùng sudo mn -c để sửa lỗi xung đột khi tạo topo mới
 
 x11 ĐỂ TẢI xterm
 sudo apt update
 sudo apt install xterm
+
+OVS-switch không thể tìm được trong phiên bản Mininet này nên nhưng một vài logic về switch phải được tự tạo
