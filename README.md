@@ -31,7 +31,6 @@
 
 Mở terminal WSL/Ubuntu và chạy các lệnh sau để cài đặt Mininet và các công cụ mạng cần thiết mà chúng ta đã gỡ lỗi:
 
-```bash
 # Cập nhật danh sách gói
 sudo apt update
 
@@ -43,19 +42,16 @@ sudo apt install openvswitch-switch
 
 # Cài đặt các công cụ đồ họa và chẩn đoán mạng
 sudo apt install xterm traceroute
-```
 
 ### 3. Cài đặt các thư viện Python
 
 Dự án này sử dụng các thư viện được liệt kê trong file `requirements.txt`.
 
-```bash
 # Cài đặt pip nếu chưa có
 sudo apt install python3-pip
 
 # Cài đặt các thư viện từ file requirements.txt
 pip3 install -r requirements.txt
-```
 *(Ghi chú: Bạn có thể tạo file `requirements.txt` bằng lệnh `pip3 freeze > requirements.txt` sau khi đã cài đặt torch, numpy...)*
 
 ## Cách Sử Dụng
@@ -64,36 +60,30 @@ Tất cả các lệnh sau đều được chạy từ thư mục gốc của d�
 
 ### 1. Chạy các kịch bản Demo
 
-Luôn chạy lệnh `sudo mn -c` trước khi chuyển đổi giữa các kịch bản để đảm bảo môi trường sạch.
+Luôn chạy lệnh `reset` và `sudo mn -c` trước khi chuyển đổi giữa các kịch bản để đảm bảo môi trường sạch.
 
 *   **Thí nghiệm đo băng thông và nút cổ chai:**
-    ```bash
     # Dọn dẹp môi trường
     sudo mn -c
     
     # Chạy kịch bản (sử dụng -E nếu cần xterm)
     sudo -E python3 bandwidth_test.py
-    ```
 
 *   **Thí nghiệm định tuyến tĩnh và sự cố đứt link:**
-    ```bash
     # Dọn dẹp môi trường
     sudo mn -c
     
     # Chạy kịch bản
     sudo -E python3 static_routing.py
-    ```
 
 ### 2. Huấn luyện mô hình RL (Sau khi hoàn thành)
 
-```bash
 # Chạy file huấn luyện chính
 sudo python3 main.py
-```
+
 
 ## Cấu Trúc Thư Mục
 
-```
 .
 ├── main.py                # File chính để huấn luyện mô hình DQN
 ├── topology.py            # Định nghĩa các topo mạng Mininet
@@ -103,4 +93,5 @@ sudo python3 main.py
 └── README.md              # File tài liệu này```
 
 ## Tác Giả
-
+Hà Minh Phú - 2312646
+Nguyễn Mai Huy Phát - 2312589
