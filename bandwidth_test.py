@@ -10,8 +10,7 @@ from mininet.link import TCLink
 def run_bandwidth_test():
     net = None
     try:
-        # 1. KHÔNG SỬ DỤNG Controller. 
-        #    Xóa bỏ tham số controller=OVSController.
+        # 1. TẠO MỘT MẠNG ĐƠN GIẢN VỚI 2 HOST VÀ 1 SWITCH
         net = Mininet(switch=OVSKernelSwitch, autoSetMacs=True, link=TCLink, cleanup=True)
 
         print("INFO: *** Mạng sẽ hoạt động không cần Controller ***")
