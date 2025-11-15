@@ -1,0 +1,97 @@
+# Manual ping script to populate ARP entries in Mininet
+# Usage (inside Mininet CLI):
+#   source /home/minhp/MMT_2025/DoAnMangRL/Compare/manual_ping_script.txt
+# This file issues minimal pairwise pings so each host/router learns ARP entries.
+
+# 1) Each host pings its gateway to populate host->gateway ARP
+h1 ping -c 1 10.0.1.1
+h2 ping -c 1 10.0.2.1
+h3 ping -c 1 10.0.3.1
+h4 ping -c 1 10.0.4.1
+h5 ping -c 1 10.0.5.1
+
+# small pause to allow ARP to settle (Mininet CLI will wait for commands)
+
+# 2) Pairwise host-to-host pings (one-shot each) to create host-side and router-side ARP
+# From h1 to others
+h1 ping -c 1 10.0.2.10
+h1 ping -c 1 10.0.3.10
+h1 ping -c 1 10.0.4.10
+h1 ping -c 1 10.0.5.10
+
+# From h2 to others
+h2 ping -c 1 10.0.1.10
+h2 ping -c 1 10.0.3.10
+h2 ping -c 1 10.0.4.10
+h2 ping -c 1 10.0.5.10
+
+# From h3 to others
+h3 ping -c 1 10.0.1.10
+h3 ping -c 1 10.0.2.10
+h3 ping -c 1 10.0.4.10
+h3 ping -c 1 10.0.5.10
+
+# From h4 to others
+h4 ping -c 1 10.0.1.10
+h4 ping -c 1 10.0.2.10
+h4 ping -c 1 10.0.3.10
+h4 ping -c 1 10.0.5.10
+
+# From h5 to others
+h5 ping -c 1 10.0.1.10
+h5 ping -c 1 10.0.2.10
+h5 ping -c 1 10.0.3.10
+h5 ping -c 1 10.0.4.10
+
+# 3) Router <-> router interface pings to populate ARP on the router links
+# r1 <-> r2
+r1 ping -c 1 192.168.12.2
+r2 ping -c 1 192.168.12.1
+
+# r1 <-> r3
+r1 ping -c 1 192.168.13.2
+r3 ping -c 1 192.168.13.1
+
+# r1 <-> r4
+r1 ping -c 1 192.168.14.2
+r4 ping -c 1 192.168.14.1
+
+# r1 <-> r5
+r1 ping -c 1 192.168.15.2
+r5 ping -c 1 192.168.15.1
+
+# r2 <-> r3
+r2 ping -c 1 192.168.23.2
+r3 ping -c 1 192.168.23.1
+
+# r3 <-> r4
+r3 ping -c 1 192.168.34.2
+r4 ping -c 1 192.168.34.1
+
+# 4) (Optional) routers ping host IPs directly so routers learn host ARP entries
+r1 ping -c 1 10.0.2.10
+r1 ping -c 1 10.0.3.10
+r1 ping -c 1 10.0.4.10
+r1 ping -c 1 10.0.5.10
+
+r2 ping -c 1 10.0.1.10
+r2 ping -c 1 10.0.3.10
+r2 ping -c 1 10.0.4.10
+r2 ping -c 1 10.0.5.10
+
+r3 ping -c 1 10.0.1.10
+r3 ping -c 1 10.0.2.10
+r3 ping -c 1 10.0.4.10
+r3 ping -c 1 10.0.5.10
+
+r4 ping -c 1 10.0.1.10
+r4 ping -c 1 10.0.2.10
+r4 ping -c 1 10.0.3.10
+r4 ping -c 1 10.0.5.10
+
+r5 ping -c 1 10.0.1.10
+r5 ping -c 1 10.0.2.10
+r5 ping -c 1 10.0.3.10
+r5 ping -c 1 10.0.4.10
+
+# End of script
