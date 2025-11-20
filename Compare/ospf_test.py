@@ -26,22 +26,13 @@ class MyTestTopo(Topo):
         self.addLink('r2', 'r3', intfName1='r2-eth2', intfName2='r3-eth2'); self.addLink('r3', 'r4', intfName1='r3-eth3', intfName2='r4-eth2')
 
 def reliable_arp_priming(net):
-    """
-    Ping tuần tự chỉ giữa các cặp HOST thực sự.
-    """
     info('*** Starting reliable ARP priming (HOSTS ONLY)...\n')
-    
-    # Lọc để chỉ lấy các node là host
     hosts = [node for node in net.hosts if 'h' in node.name]
-
     for source in hosts:
         for dest in hosts:
             if source != dest:
-                # Lấy số thứ tự của host đích từ tên (ví dụ: 'h3' -> 3)
                 dest_id = int(dest.name.replace('h', ''))
-                # Xây dựng địa chỉ IP chính xác
                 dest_ip = f'10.0.{dest_id}.10'
-                
                 info(f'Priming path: {source.name} -> {dest.name} ({dest_ip})\n')
                 source.cmdPrint(f'ping -c 1 -W 1 {dest_ip}')
     info('*** Reliable ARP priming complete.\n')
@@ -53,8 +44,6 @@ def run_ospf_simulation():
     
     try:
         net.start()
-
-        # ... (Cấu hình IP và FRR giữ nguyên y hệt, chúng đã đúng) ...
         info("--- Cấu hình IP và Default Route cho Hosts ---\n")
         for i in range(1, 6): net.get(f'h{i}').cmd(f'ifconfig h{i}-eth0 10.0.{i}.10/24 up'); net.get(f'h{i}').cmd(f'route add default gw 10.0.{i}.1')
         info("--- Cấu hình IP cho các cổng Router ---\n")
@@ -77,12 +66,7 @@ def run_ospf_simulation():
 
         info("--- Chờ OSPF hội tụ (60 giây) ---\n")
         time.sleep(60)
-        
-        # Gọi hàm warm-up đáng tin cậy đã được sửa lỗi
         reliable_arp_priming(net)
-        
-        info("\n*** Mở CLI để kiểm tra. Gõ 'pingall' sẽ thấy 0% drop. ***\n")
-        info("Gõ 'exit' để bắt đầu đo lường tự động.\n")
         CLI(net)
 
     finally:
