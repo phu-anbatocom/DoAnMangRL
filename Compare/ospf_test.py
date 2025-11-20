@@ -48,6 +48,9 @@ def parse_ping(ping_output):
     return avg_latency, packet_loss
 
 def run_ospf_simulation():
+    script_dir = os.path.dirname(os.path.abspath(__file__))
+    project_root = os.path.dirname(script_dir)
+    output_path = os.path.join(project_root, 'Result', 'logs', 'ospf_results.csv')
     cleanup_frr()
     topo = MyTestTopo()
     net = Mininet(topo=topo, link=TCLink) 
@@ -110,18 +113,13 @@ def run_ospf_simulation():
         for h in hosts: h.cmd('kill %iperf')
 
         if not results:
-            info("!!! WARNING: No results were recorded. CSV file will not be written.\n")
+            info("!!! WARNING: No results recorded.\n")
         else:
-            output_path = '/home/minhp/MMT_2025/DoAnMangRL/Result/logs/ospf_results.csv'
-            info(f"--- Writing {len(results)} results to {output_path} ---\n")
+            info(f"--- Writing results to {output_path} ---\n")
             try:
                 os.makedirs(os.path.dirname(output_path), exist_ok=True)
                 with open(output_path, 'w', newline='') as f:
-                    # Lấy fieldnames từ phần tử đầu tiên
-                    fieldnames = results[0].keys()
-                    writer = csv.DictWriter(f, fieldnames=fieldnames)
-                    writer.writeheader()
-                    writer.writerows(results)
+                    writer = csv.DictWriter(f, fieldnames=results[0].keys()); writer.writeheader(); writer.writerows(results)
                 info(f"--- Benchmark complete. Results successfully saved. ---\n")
             except Exception as e:
                 info(f"!!! ERROR: Failed to write to CSV file: {e}\n")
